@@ -6,6 +6,16 @@ export interface DatasetMetadata {
   created: string;
   updated: string;
   hasConverter?: boolean; // Whether converter.js exists for this dataset
+  visualization?: VisualizationConfig; // How to visualize this dataset
+}
+
+export interface VisualizationConfig {
+  type: 'timeseries'; // Chart type - currently only timeseries supported
+  xAxis: 'year-month'; // X-axis format
+  yAxis: string; // Y-axis label
+  indicatorField: string; // Field name for indicator grouping
+  dataField: string; // Field name for data array
+  valueField: string; // Field name for value in data points
 }
 
 export interface DataVersion {

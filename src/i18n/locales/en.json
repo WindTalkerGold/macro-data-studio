@@ -51,6 +51,8 @@
         "timestamp": "Timestamp",
         "rawFile": "Raw File",
         "processedFile": "Processed File",
+        "actions": "Actions",
+        "visualize": "Visualize",
         "note": "Note"
       },
       "converter": {
@@ -65,6 +67,20 @@
         "download": "Download",
         "close": "Close"
       }
+    },
+    "visualize": {
+      "loading": "Loading data...",
+      "version": "Version",
+      "back": "Back",
+      "indicators": "Indicators",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selectIndicator": "Select at least one indicator to display the chart",
+      "timeRange": "Time Range",
+      "from": "From",
+      "to": "To",
+      "resetRange": "Reset",
+      "dataPoints": "data points"
     }
   }
 }

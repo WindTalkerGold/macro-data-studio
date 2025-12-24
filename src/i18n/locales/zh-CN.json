@@ -51,6 +51,8 @@
         "timestamp": "时间戳",
         "rawFile": "原始文件",
         "processedFile": "处理后文件",
+        "actions": "操作",
+        "visualize": "可视化",
         "note": "备注"
       },
       "converter": {
@@ -65,6 +67,20 @@
         "download": "下载",
         "close": "关闭"
       }
+    },
+    "visualize": {
+      "loading": "加载数据中...",
+      "version": "版本",
+      "back": "返回",
+      "indicators": "指标",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "selectIndicator": "请至少选择一个指标以显示图表",
+      "timeRange": "时间范围",
+      "from": "从",
+      "to": "至",
+      "resetRange": "重置",
+      "dataPoints": "个数据点"
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { DatasetWithVersions } from '@/types';
 import FilePreviewModal from '@/components/FilePreviewModal';
 
@@ -20,6 +21,7 @@ export default function DatasetDetailPage({
   const t = useTranslations('datasets');
 
   const [datasetId, setDatasetId] = useState<string | null>(null);
+  const [locale, setLocale] = useState<string>('en');
   const [dataset, setDataset] = useState<DatasetWithVersions | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -39,8 +41,9 @@ export default function DatasetDetailPage({
   const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
-    params.then(({ id }) => {
+    params.then(({ id, locale: l }) => {
       setDatasetId(id);
+      setLocale(l);
       fetchDataset(id);
       fetchConverterScript(id);
     });
@@ -231,6 +234,7 @@ export default function DatasetDetailPage({
                   <th className="px-4 py-2 text-left">{t('detail.versions.timestamp')}</th>
                   <th className="px-4 py-2 text-left">{t('detail.versions.rawFile')}</th>
                   <th className="px-4 py-2 text-left">{t('detail.versions.processedFile')}</th>
+                  <th className="px-4 py-2 text-left">{t('detail.versions.actions')}</th>
                   <th className="px-4 py-2 text-left">{t('detail.versions.note')}</th>
                 </tr>
               </thead>
@@ -264,6 +268,18 @@ export default function DatasetDetailPage({
                         >
                           {version.processedFileName}
                         </button>
+                      ) : (
+                        <span className="text-neutral-400">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
+                      {version.processedFileName ? (
+                        <Link
+                          href={`/${locale}/datasets/${datasetId}/visualize/${version.timestamp}`}
+                          className="px-2 py-1 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
+                        >
+                          {t('detail.versions.visualize')}
+                        </Link>
                       ) : (
                         <span className="text-neutral-400">-</span>
                       )}

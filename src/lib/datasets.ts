@@ -273,3 +273,55 @@ export async function saveMergedVersion(
 
   return version;
 }
+
+/**
+ * Delete a version from a dataset.
+ * Removes the version from registry and deletes associated files.
+ */
+export async function deleteVersion(
+  id: string,
+  timestamp: string
+): Promise<{ deleted: boolean; rawDeleted: boolean; processedDeleted: boolean }> {
+  const registry = await getRegistry();
+  if (!registry[id]) {
+    throw new Error(`Dataset ${id} not found`);
+  }
+
+  const versionIndex = registry[id].versions.findIndex(v => v.timestamp === timestamp);
+  if (versionIndex === -1) {
+    throw new Error(`Version ${timestamp} not found`);
+  }
+
+  const version = registry[id].versions[versionIndex];
+  let rawDeleted = false;
+  let processedDeleted = false;
+
+  // Delete raw file if exists
+  if (version.rawFileName) {
+    const rawPath = path.join(getDataStorePath(), id, 'raw', version.rawFileName);
+    try {
+      await fs.unlink(rawPath);
+      rawDeleted = true;
+    } catch {
+      // File may not exist
+    }
+  }
+
+  // Delete processed file if exists
+  if (version.processedFileName) {
+    const processedPath = path.join(getDataStorePath(), id, 'processed', version.processedFileName);
+    try {
+      await fs.unlink(processedPath);
+      processedDeleted = true;
+    } catch {
+      // File may not exist
+    }
+  }
+
+  // Remove version from registry
+  registry[id].versions.splice(versionIndex, 1);
+  registry[id].metadata.updated = new Date().toISOString();
+  await saveRegistry(registry);
+
+  return { deleted: true, rawDeleted, processedDeleted };
+}

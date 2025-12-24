@@ -50,6 +50,37 @@ export default function DatasetDetailPage({
   const [mergeError, setMergeError] = useState<string | null>(null);
   const [mergeSuccess, setMergeSuccess] = useState(false);
 
+  // Delete state
+  const [deletingVersion, setDeletingVersion] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  async function handleDelete(timestamp: string) {
+    if (!datasetId) return;
+
+    setDeletingVersion(timestamp);
+    try {
+      const response = await fetch(`/api/datasets/${datasetId}/versions/${timestamp}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete version');
+      }
+
+      const { dataset: updatedDataset } = await response.json();
+      setDataset(updatedDataset);
+      setDeleteConfirm(null);
+      // Clear from merge selection if it was selected
+      setSelectedForMerge((prev) => prev.filter((t) => t !== timestamp));
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete version');
+    } finally {
+      setDeletingVersion(null);
+    }
+  }
+
   useEffect(() => {
     params.then(({ id, locale: l }) => {
       setDatasetId(id);
@@ -346,16 +377,43 @@ export default function DatasetDetailPage({
                       )}
                     </td>
                     <td className="px-4 py-2">
-                      {version.processedFileName ? (
-                        <Link
-                          href={`/${locale}/datasets/${datasetId}/visualize/${version.timestamp}`}
-                          className="px-2 py-1 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
-                        >
-                          {t('detail.versions.visualize')}
-                        </Link>
-                      ) : (
-                        <span className="text-neutral-400">-</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {version.processedFileName && (
+                          <Link
+                            href={`/${locale}/datasets/${datasetId}/visualize/${version.timestamp}`}
+                            className="px-2 py-1 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
+                          >
+                            {t('detail.versions.visualize')}
+                          </Link>
+                        )}
+                        {deleteConfirm === version.timestamp ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(version.timestamp)}
+                              disabled={deletingVersion === version.timestamp}
+                              className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                            >
+                              {deletingVersion === version.timestamp
+                                ? t('detail.versions.deleting')
+                                : t('detail.versions.confirmDelete')}
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              disabled={deletingVersion === version.timestamp}
+                              className="px-2 py-1 text-xs bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300 rounded hover:bg-neutral-300 dark:hover:bg-neutral-600 disabled:opacity-50"
+                            >
+                              {t('detail.versions.cancel')}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirm(version.timestamp)}
+                            className="px-2 py-1 text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800"
+                          >
+                            {t('detail.versions.delete')}
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-2 text-neutral-500 text-xs">
                       {version.mergedFrom ? (

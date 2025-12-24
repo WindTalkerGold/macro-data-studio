@@ -76,7 +76,11 @@
         "actions": "操作",
         "visualize": "可视化",
         "note": "备注",
-        "merged": "已合并"
+        "merged": "已合并",
+        "delete": "删除",
+        "confirmDelete": "确认",
+        "deleting": "删除中...",
+        "cancel": "取消"
       },
       "merge": {
         "title": "合并版本",

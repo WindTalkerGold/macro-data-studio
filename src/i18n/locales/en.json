@@ -76,7 +76,11 @@
         "actions": "Actions",
         "visualize": "Visualize",
         "note": "Note",
-        "merged": "Merged"
+        "merged": "Merged",
+        "delete": "Delete",
+        "confirmDelete": "Confirm",
+        "deleting": "Deleting...",
+        "cancel": "Cancel"
       },
       "merge": {
         "title": "Merge Versions",

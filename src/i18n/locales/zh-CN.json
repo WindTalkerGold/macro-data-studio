@@ -1,8 +1,18 @@
 {
-  "app.title": "宏观数据工作室",
-  "nav.home": "首页",
-  "nav.dashboard": "控制台",
-  "home.welcome": "欢迎使用宏观数据工作室",
-  "dashboard.title": "控制台",
-  "language.switch": "EN"
+  "app": {
+    "title": "宏观数据工作室"
+  },
+  "nav": {
+    "home": "首页",
+    "dashboard": "控制台"
+  },
+  "home": {
+    "welcome": "欢迎使用宏观数据工作室"
+  },
+  "dashboard": {
+    "title": "控制台"
+  },
+  "language": {
+    "switch": "EN"
+  }
 }

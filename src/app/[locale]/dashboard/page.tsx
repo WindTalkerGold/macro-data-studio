@@ -1,7 +1,13 @@
-import { useTranslations } from 'next-intl';
+import {getTranslations, setRequestLocale} from 'next-intl/server';
 
-export default function DashboardPage() {
-  const t = useTranslations();
+export default async function DashboardPage({
+  params
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations();
   return (
     <section>
       <h1 className="text-2xl font-semibold mb-2">{t('dashboard.title')}</h1>

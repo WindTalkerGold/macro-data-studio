@@ -1,8 +1,18 @@
 {
-  "app.title": "Macro Data Studio",
-  "nav.home": "Home",
-  "nav.dashboard": "Dashboard",
-  "home.welcome": "Welcome to Macro Data Studio",
-  "dashboard.title": "Dashboard",
-  "language.switch": "中文"
+  "app": {
+    "title": "Macro Data Studio"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "welcome": "Welcome to Macro Data Studio"
+  },
+  "dashboard": {
+    "title": "Dashboard"
+  },
+  "language": {
+    "switch": "中文"
+  }
 }

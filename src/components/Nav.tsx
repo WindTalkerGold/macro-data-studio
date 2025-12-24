@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
+import { locales } from "@/i18n";
 
 function switchLocalePath(pathname: string, locale: string) {
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length === 0) return `/${locale}`;
   // If first part is a locale, replace it; else prefix
-  const known = ["en", "zh-CN"]; // keep in sync with i18n
-  if (known.includes(parts[0]!)) {
+  if (locales.includes(parts[0] as any)) {
     parts[0] = locale;
   } else {
     parts.unshift(locale);

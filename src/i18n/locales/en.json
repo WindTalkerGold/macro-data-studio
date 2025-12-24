@@ -75,7 +75,25 @@
         "processedFile": "Processed File",
         "actions": "Actions",
         "visualize": "Visualize",
-        "note": "Note"
+        "note": "Note",
+        "merged": "Merged",
+        "delete": "Delete",
+        "confirmDelete": "Confirm",
+        "deleting": "Deleting...",
+        "cancel": "Cancel"
+      },
+      "merge": {
+        "title": "Merge Versions",
+        "description": "Combine multiple versions into a new merged version. The original versions will remain unchanged.",
+        "selectVersions": "Select versions to merge",
+        "selected": "{count} versions selected",
+        "strategy": "Duplicate handling strategy",
+        "strategyLatest": "Keep latest value (from newer version)",
+        "strategyAverage": "Calculate average of all values",
+        "strategyFirst": "Keep first value (from older version)",
+        "submit": "Merge Selected",
+        "merging": "Merging...",
+        "success": "Versions merged successfully!"
       },
       "converter": {
         "title": "Converter Script",

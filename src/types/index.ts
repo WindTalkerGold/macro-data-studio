@@ -22,9 +22,11 @@ export interface VisualizationConfig {
 
 export interface DataVersion {
   timestamp: string; // Format: YYYYMMDD_HHmmss
-  rawFileName: string;
+  rawFileName?: string; // Optional - merged versions don't have raw files
   processedFileName?: string;
   note?: string;
+  isMerged?: boolean; // True if this version was created by merging
+  mergedFrom?: string[]; // Timestamps of source versions (if merged)
 }
 
 export interface DatasetWithVersions {
@@ -35,4 +37,19 @@ export interface DatasetWithVersions {
 // Stored in data-store/datasets.json
 export interface DatasetRegistry {
   [datasetId: string]: DatasetWithVersions;
+}
+
+// Merge strategy for handling duplicate data points
+export type MergeStrategy = 'latest' | 'average' | 'first';
+
+// Processed data structure (time series format)
+export interface TimeSeriesDataPoint {
+  year: number;
+  month: number;
+  value: number;
+}
+
+export interface IndicatorData {
+  indicator: string;
+  data: TimeSeriesDataPoint[];
 }

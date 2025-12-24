@@ -75,7 +75,25 @@
         "processedFile": "处理后文件",
         "actions": "操作",
         "visualize": "可视化",
-        "note": "备注"
+        "note": "备注",
+        "merged": "已合并",
+        "delete": "删除",
+        "confirmDelete": "确认",
+        "deleting": "删除中...",
+        "cancel": "取消"
+      },
+      "merge": {
+        "title": "合并版本",
+        "description": "将多个版本合并为新版本。原始版本将保持不变。",
+        "selectVersions": "选择要合并的版本",
+        "selected": "已选择 {count} 个版本",
+        "strategy": "重复数据处理策略",
+        "strategyLatest": "保留最新值（来自较新版本）",
+        "strategyAverage": "计算所有值的平均值",
+        "strategyFirst": "保留最早值（来自较旧版本）",
+        "submit": "合并所选版本",
+        "merging": "合并中...",
+        "success": "版本合并成功！"
       },
       "converter": {
         "title": "转换脚本",

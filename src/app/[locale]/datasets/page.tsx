@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { DatasetWithVersions } from '@/types';
 
@@ -15,12 +15,16 @@ export default function DatasetsPage() {
   const t = useTranslations('datasets');
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check if we should show create form first (via ?action=create)
+  const isCreateMode = searchParams.get('action') === 'create';
 
   const [datasets, setDatasets] = useState<DatasetWithVersions[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isCreateExpanded, setIsCreateExpanded] = useState(false);
+  const [isCreateExpanded, setIsCreateExpanded] = useState(isCreateMode);
 
   // Predefined converters
   const [predefinedConverters, setPredefinedConverters] = useState<PredefinedConverter[]>([]);
@@ -37,6 +41,11 @@ export default function DatasetsPage() {
     fetchDatasets();
     fetchPredefinedConverters();
   }, []);
+
+  // Update expansion state when URL changes
+  useEffect(() => {
+    setIsCreateExpanded(isCreateMode);
+  }, [isCreateMode]);
 
   async function fetchDatasets() {
     try {
@@ -108,7 +117,154 @@ export default function DatasetsPage() {
     <div className="space-y-8">
       <h1 className="text-2xl font-semibold">{t('title')}</h1>
 
-      {/* Dataset List - Shown first */}
+      {/* Create Dataset Form - Shown first in create mode */}
+      {isCreateMode && (
+        <section className="border rounded-lg bg-white dark:bg-neutral-900">
+          <button
+            type="button"
+            onClick={() => setIsCreateExpanded(!isCreateExpanded)}
+            className="w-full p-4 flex items-center justify-between text-left"
+          >
+            <h2 className="text-lg font-medium">{t('create.title')}</h2>
+            <span className="text-xl">{isCreateExpanded ? '−' : '+'}</span>
+          </button>
+
+          {isCreateExpanded && (
+            <form onSubmit={handleSubmit} className="p-6 pt-0 space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-1">
+                  {t('create.name')}
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.namePlaceholder')}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium mb-1">
+                  {t('create.description')}
+                </label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.descriptionPlaceholder')}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="source" className="block text-sm font-medium mb-1">
+                  {t('create.source')}
+                </label>
+                <input
+                  id="source"
+                  type="text"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.sourcePlaceholder')}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="file" className="block text-sm font-medium mb-1">
+                  {t('create.file')}
+                </label>
+                <input
+                  id="file"
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                />
+                <p className="text-xs text-neutral-500 mt-1">{t('create.fileHint')}</p>
+              </div>
+
+              {/* Converter Selection */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('create.converter')}
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType"
+                      value="none"
+                      checked={converterType === 'none'}
+                      onChange={() => setConverterType('none')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterNone')}</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType"
+                      value="predefined"
+                      checked={converterType === 'predefined'}
+                      onChange={() => setConverterType('predefined')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterPredefined')}</span>
+                  </label>
+                  {converterType === 'predefined' && predefinedConverters.length > 0 && (
+                    <div className="ml-6">
+                      <select
+                        value={selectedPredefinedId}
+                        onChange={(e) => setSelectedPredefinedId(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md bg-transparent text-sm"
+                      >
+                        {predefinedConverters.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} - {c.description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType"
+                      value="llm"
+                      checked={converterType === 'llm'}
+                      onChange={() => setConverterType('llm')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterLLM')}</span>
+                  </label>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">{t('create.converterHint')}</p>
+              </div>
+
+              {error && (
+                <p className="text-red-600 text-sm">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={creating}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {creating ? t('create.creating') : t('create.submit')}
+              </button>
+            </form>
+          )}
+        </section>
+      )}
+
+      {/* Dataset List */}
       <section>
         <h2 className="text-lg font-medium mb-4">{t('list.title')}</h2>
         {loading ? (
@@ -137,150 +293,152 @@ export default function DatasetsPage() {
         )}
       </section>
 
-      {/* Create Dataset Form - Collapsible */}
-      <section className="border rounded-lg bg-white dark:bg-neutral-900">
-        <button
-          type="button"
-          onClick={() => setIsCreateExpanded(!isCreateExpanded)}
-          className="w-full p-4 flex items-center justify-between text-left"
-        >
-          <h2 className="text-lg font-medium">{t('create.title')}</h2>
-          <span className="text-xl">{isCreateExpanded ? '−' : '+'}</span>
-        </button>
+      {/* Create Dataset Form - Shown at bottom in non-create mode */}
+      {!isCreateMode && (
+        <section className="border rounded-lg bg-white dark:bg-neutral-900">
+          <button
+            type="button"
+            onClick={() => setIsCreateExpanded(!isCreateExpanded)}
+            className="w-full p-4 flex items-center justify-between text-left"
+          >
+            <h2 className="text-lg font-medium">{t('create.title')}</h2>
+            <span className="text-xl">{isCreateExpanded ? '−' : '+'}</span>
+          </button>
 
-        {isCreateExpanded && (
-          <form onSubmit={handleSubmit} className="p-6 pt-0 space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                {t('create.name')}
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md bg-transparent"
-                placeholder={t('create.namePlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
-                {t('create.description')}
-              </label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                rows={3}
-                className="w-full px-3 py-2 border rounded-md bg-transparent"
-                placeholder={t('create.descriptionPlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="source" className="block text-sm font-medium mb-1">
-                {t('create.source')}
-              </label>
-              <input
-                id="source"
-                type="text"
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md bg-transparent"
-                placeholder={t('create.sourcePlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="file" className="block text-sm font-medium mb-1">
-                {t('create.file')}
-              </label>
-              <input
-                id="file"
-                type="file"
-                accept=".csv"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full px-3 py-2 border rounded-md bg-transparent"
-              />
-              <p className="text-xs text-neutral-500 mt-1">{t('create.fileHint')}</p>
-            </div>
-
-            {/* Converter Selection */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                {t('create.converter')}
-              </label>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="converterType"
-                    value="none"
-                    checked={converterType === 'none'}
-                    onChange={() => setConverterType('none')}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm">{t('create.converterNone')}</span>
+          {isCreateExpanded && (
+            <form onSubmit={handleSubmit} className="p-6 pt-0 space-y-4">
+              <div>
+                <label htmlFor="name-bottom" className="block text-sm font-medium mb-1">
+                  {t('create.name')}
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="converterType"
-                    value="predefined"
-                    checked={converterType === 'predefined'}
-                    onChange={() => setConverterType('predefined')}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm">{t('create.converterPredefined')}</span>
-                </label>
-                {converterType === 'predefined' && predefinedConverters.length > 0 && (
-                  <div className="ml-6">
-                    <select
-                      value={selectedPredefinedId}
-                      onChange={(e) => setSelectedPredefinedId(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-md bg-transparent text-sm"
-                    >
-                      {predefinedConverters.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} - {c.description}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="converterType"
-                    value="llm"
-                    checked={converterType === 'llm'}
-                    onChange={() => setConverterType('llm')}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm">{t('create.converterLLM')}</span>
-                </label>
+                <input
+                  id="name-bottom"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.namePlaceholder')}
+                />
               </div>
-              <p className="text-xs text-neutral-500 mt-2">{t('create.converterHint')}</p>
-            </div>
 
-            {error && (
-              <p className="text-red-600 text-sm">{error}</p>
-            )}
+              <div>
+                <label htmlFor="description-bottom" className="block text-sm font-medium mb-1">
+                  {t('create.description')}
+                </label>
+                <textarea
+                  id="description-bottom"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.descriptionPlaceholder')}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={creating}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {creating ? t('create.creating') : t('create.submit')}
-            </button>
-          </form>
-        )}
-      </section>
+              <div>
+                <label htmlFor="source-bottom" className="block text-sm font-medium mb-1">
+                  {t('create.source')}
+                </label>
+                <input
+                  id="source-bottom"
+                  type="text"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                  placeholder={t('create.sourcePlaceholder')}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="file-bottom" className="block text-sm font-medium mb-1">
+                  {t('create.file')}
+                </label>
+                <input
+                  id="file-bottom"
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 border rounded-md bg-transparent"
+                />
+                <p className="text-xs text-neutral-500 mt-1">{t('create.fileHint')}</p>
+              </div>
+
+              {/* Converter Selection */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t('create.converter')}
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType-bottom"
+                      value="none"
+                      checked={converterType === 'none'}
+                      onChange={() => setConverterType('none')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterNone')}</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType-bottom"
+                      value="predefined"
+                      checked={converterType === 'predefined'}
+                      onChange={() => setConverterType('predefined')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterPredefined')}</span>
+                  </label>
+                  {converterType === 'predefined' && predefinedConverters.length > 0 && (
+                    <div className="ml-6">
+                      <select
+                        value={selectedPredefinedId}
+                        onChange={(e) => setSelectedPredefinedId(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md bg-transparent text-sm"
+                      >
+                        {predefinedConverters.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} - {c.description}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="converterType-bottom"
+                      value="llm"
+                      checked={converterType === 'llm'}
+                      onChange={() => setConverterType('llm')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm">{t('create.converterLLM')}</span>
+                  </label>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">{t('create.converterHint')}</p>
+              </div>
+
+              {error && (
+                <p className="text-red-600 text-sm">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={creating}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {creating ? t('create.creating') : t('create.submit')}
+              </button>
+            </form>
+          )}
+        </section>
+      )}
     </div>
   );
 }

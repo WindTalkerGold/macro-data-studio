@@ -6,7 +6,24 @@
     "datasets": "Datasets"
   },
   "dashboard": {
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "loading": "Loading...",
+    "summary": {
+      "datasets": "Total Datasets",
+      "versions": "Total Versions",
+      "withConverter": "With Converter"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "viewDatasets": "View Datasets",
+      "createDataset": "Create New Dataset"
+    },
+    "recentUpdates": {
+      "title": "Recent Updates",
+      "empty": "No recent updates. Upload some data to get started.",
+      "processed": "Processed",
+      "rawOnly": "Raw only"
+    }
   },
   "language": {
     "switch": "中文"

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__get_console_message",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial project setup: Next.js 16 with i18n support\n\n- Next.js 16.1.1 with React 19 and TypeScript\n- Internationalization using next-intl \\(en, zh-CN locales\\)\n- Tailwind CSS 4 for styling\n- App Router with [locale] dynamic routing\n- Middleware for locale detection and routing\n- Nav component with locale switcher\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n\\)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

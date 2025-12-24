@@ -3,16 +3,68 @@
     "title": "宏观数据工作室"
   },
   "nav": {
-    "home": "首页",
-    "dashboard": "控制台"
-  },
-  "home": {
-    "welcome": "欢迎使用宏观数据工作室"
+    "datasets": "数据集"
   },
   "dashboard": {
     "title": "控制台"
   },
   "language": {
     "switch": "EN"
+  },
+  "datasets": {
+    "title": "数据集",
+    "create": {
+      "title": "创建新数据集",
+      "name": "名称",
+      "namePlaceholder": "例如：中国CPI数据",
+      "description": "描述",
+      "descriptionPlaceholder": "描述此数据集包含的内容...",
+      "source": "来源",
+      "sourcePlaceholder": "例如：国家统计局",
+      "file": "初始CSV文件（可选）",
+      "fileHint": "上传CSV文件以初始化数据",
+      "submit": "创建数据集",
+      "creating": "创建中..."
+    },
+    "list": {
+      "title": "已有数据集",
+      "loading": "加载数据集中...",
+      "empty": "暂无数据集，请在上方创建您的第一个数据集。",
+      "source": "来源",
+      "versions": "版本数"
+    },
+    "detail": {
+      "loading": "加载数据集中...",
+      "notFound": "数据集不存在",
+      "fetchError": "加载数据集失败",
+      "source": "来源",
+      "created": "创建时间",
+      "upload": {
+        "title": "上传新版本",
+        "file": "CSV文件",
+        "submit": "上传",
+        "uploading": "上传中..."
+      },
+      "versions": {
+        "title": "版本列表",
+        "empty": "暂无版本",
+        "timestamp": "时间戳",
+        "rawFile": "原始文件",
+        "processedFile": "处理后文件",
+        "note": "备注"
+      },
+      "converter": {
+        "title": "转换脚本",
+        "loading": "加载脚本中...",
+        "save": "保存",
+        "saving": "保存中...",
+        "saved": "已保存！",
+        "hint": "此JavaScript函数将原始CSV数据转换为结构化JSON。请谨慎编辑。"
+      },
+      "preview": {
+        "download": "下载",
+        "close": "关闭"
+      }
+    }
   }
 }

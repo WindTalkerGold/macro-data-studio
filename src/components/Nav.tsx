@@ -29,14 +29,11 @@ export default function Nav() {
     <header className="border-b">
       <nav className="max-w-6xl mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
-          <Link href={"/" + locale} className="font-semibold">
+          <Link href={`/${locale}/dashboard`} className="font-semibold">
             {t("app.title")}
           </Link>
-          <Link href={`/${locale}`} className="text-sm">
-            {t("nav.home")}
-          </Link>
-          <Link href={`/${locale}/dashboard`} className="text-sm">
-            {t("nav.dashboard")}
+          <Link href={`/${locale}/datasets`} className="text-sm">
+            {t("nav.datasets")}
           </Link>
         </div>
         <Link href={switchHref} className="text-sm underline">

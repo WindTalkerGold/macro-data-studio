@@ -41,14 +41,31 @@
 ### 4. 核心功能流程与API设计
 **4.1 数据集管理**
 *   **创建数据集**：用户在UI-1输入名称、描述、来源，系统创建目录和 `metadata.json`。用户会同时上传一份初始数据
-        - 调用`POST /api/datasets/{id}/upload`, 成功创建则返回201,以及数据集id,页面将自动跳转到数据集UI(UI-2)
-        - 对于用户上传的原始数据,后台应调用LLM模型进行预处理,理解其数据结构,生成今后更新数据需要的prompt
+        - 调用`POST /api/datasets`, 成功创建则返回201,以及数据集id,页面将自动跳转到数据集UI(UI-2)
+        - 对于用户上传的原始数据,后台应调用LLM模型**生成转换脚本**（而非直接转换数据）
 *   **管理数据集**：用户在UI-2可以对数据进行管理操作,包括
     *   接收CSV文件，以 `YYYYMMDD_HHmmss.csv` 格式存入 `raw/` `POST /api/datasets/{id}/upload`。
-    *   触发后端调用DeepSeek API进行转换。
-*   **调用LLM转换**：后端服务将CSV内容、转换指令（Prompt）发送至DeepSeek API。
-    *   **提示词示例**：“请将以下CSV格式的中国CPI数据转换为JSON数组...确保字段包括：`year`, `month`, `category`, `value`...”
-    *   将返回的JSON以同名时间戳存入 `processed/`。
+    *   使用已生成的转换脚本进行数据转换（无需再次调用LLM）。
+*   **LLM生成转换脚本**（仅在创建数据集时调用一次）：
+    *   **输入**：CSV文件内容样本（前几行）
+    *   **输出**：一个JavaScript转换函数，保存在 `{dataset-id}/converter.js`
+    *   **优势**：
+        1. 降低成本：LLM只调用一次生成脚本，后续上传直接执行脚本
+        2. 提高效率：脚本执行速度远快于LLM处理
+        3. 可预测性：相同结构的数据会产生一致的输出
+        4. 可调试性：用户可以查看和修改转换脚本
+    *   **脚本格式示例**：
+    ```javascript
+    // converter.js - 自动生成的数据转换脚本
+    module.exports = function convert(csvContent) {
+      // 解析CSV，跳过元数据行，提取时间序列数据
+      // 返回标准化的JSON数组
+      return [
+        { year: 2025, month: 11, indicator: "CPI", value: 99.9 },
+        // ...
+      ];
+    };
+    ```
 *   **列出数据集/版本**：读取 `datasets.json` 和各个 `metadata.json`，供前端展示。
 
 **4.2 数据合并**

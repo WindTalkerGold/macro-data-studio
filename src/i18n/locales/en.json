@@ -3,16 +3,68 @@
     "title": "Macro Data Studio"
   },
   "nav": {
-    "home": "Home",
-    "dashboard": "Dashboard"
-  },
-  "home": {
-    "welcome": "Welcome to Macro Data Studio"
+    "datasets": "Datasets"
   },
   "dashboard": {
     "title": "Dashboard"
   },
   "language": {
     "switch": "中文"
+  },
+  "datasets": {
+    "title": "Datasets",
+    "create": {
+      "title": "Create New Dataset",
+      "name": "Name",
+      "namePlaceholder": "e.g. China CPI Data",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe what this dataset contains...",
+      "source": "Source",
+      "sourcePlaceholder": "e.g. National Bureau of Statistics",
+      "file": "Initial CSV File (optional)",
+      "fileHint": "Upload a CSV file to start with initial data",
+      "submit": "Create Dataset",
+      "creating": "Creating..."
+    },
+    "list": {
+      "title": "Existing Datasets",
+      "loading": "Loading datasets...",
+      "empty": "No datasets yet. Create your first one above.",
+      "source": "Source",
+      "versions": "Versions"
+    },
+    "detail": {
+      "loading": "Loading dataset...",
+      "notFound": "Dataset not found",
+      "fetchError": "Failed to load dataset",
+      "source": "Source",
+      "created": "Created",
+      "upload": {
+        "title": "Upload New Version",
+        "file": "CSV File",
+        "submit": "Upload",
+        "uploading": "Uploading..."
+      },
+      "versions": {
+        "title": "Versions",
+        "empty": "No versions yet",
+        "timestamp": "Timestamp",
+        "rawFile": "Raw File",
+        "processedFile": "Processed File",
+        "note": "Note"
+      },
+      "converter": {
+        "title": "Converter Script",
+        "loading": "Loading script...",
+        "save": "Save",
+        "saving": "Saving...",
+        "saved": "Saved!",
+        "hint": "This JavaScript function converts raw CSV data to structured JSON. Edit with caution."
+      },
+      "preview": {
+        "download": "Download",
+        "close": "Close"
+      }
+    }
   }
 }

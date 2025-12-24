@@ -30,6 +30,8 @@ export default function DatasetDetailPage({
 
   // Converter script state
   const [converterScript, setConverterScript] = useState<string>('');
+  const [originalScript, setOriginalScript] = useState<string>(''); // Track original for comparison
+  const [isPredefinedConverter, setIsPredefinedConverter] = useState(false);
   const [converterOpen, setConverterOpen] = useState(false);
   const [scriptLoading, setScriptLoading] = useState(false);
   const [scriptSaving, setScriptSaving] = useState(false);
@@ -73,6 +75,8 @@ export default function DatasetDetailPage({
       if (response.ok) {
         const data = await response.json();
         setConverterScript(data.script);
+        setOriginalScript(data.script);
+        setIsPredefinedConverter(data.isPredefined);
       }
     } catch (err) {
       console.error('Failed to fetch converter script:', err);
@@ -100,6 +104,9 @@ export default function DatasetDetailPage({
         throw new Error(data.error || 'Failed to save script');
       }
 
+      // After saving, it becomes a custom converter
+      setOriginalScript(converterScript);
+      setIsPredefinedConverter(false);
       setScriptSuccess(true);
       setTimeout(() => setScriptSuccess(false), 3000);
     } catch (err) {
@@ -300,11 +307,25 @@ export default function DatasetDetailPage({
             onClick={() => setConverterOpen(!converterOpen)}
             className="w-full flex items-center justify-between p-6 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg"
           >
-            <h2 className="text-lg font-medium">{t('detail.converter.title')}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-medium">{t('detail.converter.title')}</h2>
+              {isPredefinedConverter && (
+                <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded">
+                  {t('detail.converter.predefined')}
+                </span>
+              )}
+            </div>
             <span className="text-neutral-500">{converterOpen ? '▼' : '▶'}</span>
           </button>
           {converterOpen && (
             <div className="px-6 pb-6">
+              {isPredefinedConverter && (
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    {t('detail.converter.predefinedHint')}
+                  </p>
+                </div>
+              )}
               <div className="flex items-center justify-end gap-2 mb-4">
                 {scriptSuccess && (
                   <span className="text-green-600 text-sm">{t('detail.converter.saved')}</span>
@@ -312,12 +333,20 @@ export default function DatasetDetailPage({
                 {scriptError && (
                   <span className="text-red-600 text-sm">{scriptError}</span>
                 )}
+                {isPredefinedConverter && converterScript !== originalScript && (
+                  <button
+                    onClick={() => setConverterScript(originalScript)}
+                    className="px-3 py-1 border text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    {t('detail.converter.reset')}
+                  </button>
+                )}
                 <button
                   onClick={handleSaveScript}
-                  disabled={scriptSaving || scriptLoading}
+                  disabled={scriptSaving || scriptLoading || converterScript === originalScript}
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {scriptSaving ? t('detail.converter.saving') : t('detail.converter.save')}
+                  {scriptSaving ? t('detail.converter.saving') : t('detail.converter.saveAsCustom')}
                 </button>
               </div>
               {scriptLoading ? (

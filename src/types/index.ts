@@ -5,7 +5,9 @@ export interface DatasetMetadata {
   source: string;
   created: string;
   updated: string;
-  hasConverter?: boolean; // Whether converter.js exists for this dataset
+  hasConverter?: boolean; // Whether a converter is available for this dataset
+  converterType?: 'predefined' | 'custom' | 'llm'; // Source of converter
+  predefinedConverterId?: string; // ID of predefined converter if using one
   visualization?: VisualizationConfig; // How to visualize this dataset
 }
 

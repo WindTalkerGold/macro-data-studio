@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const script = await getConverterScript(id);
+    const { script, isPredefined } = await getConverterScript(id);
     if (!script) {
       return NextResponse.json(
         { error: 'Converter script not found' },
@@ -16,7 +16,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ script });
+    // Also get the dataset to include converter metadata
+    const dataset = await getDataset(id);
+
+    return NextResponse.json({
+      script,
+      isPredefined,
+      converterType: dataset?.metadata.converterType,
+      predefinedConverterId: dataset?.metadata.predefinedConverterId,
+    });
   } catch (error) {
     console.error('Error getting converter script:', error);
     return NextResponse.json(
@@ -50,6 +58,7 @@ export async function PUT(
       );
     }
 
+    // This will save as custom converter, overriding predefined if any
     await saveConverterScript(id, script);
 
     return NextResponse.json({ message: 'Converter script updated successfully' });

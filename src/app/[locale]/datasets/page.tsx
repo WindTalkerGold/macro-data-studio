@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { DatasetWithVersions } from '@/types';
 
+interface PredefinedConverter {
+  id: string;
+  name: string;
+  description: string;
+}
+
 export default function DatasetsPage() {
   const t = useTranslations('datasets');
   const locale = useLocale();
@@ -16,14 +22,20 @@ export default function DatasetsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isCreateExpanded, setIsCreateExpanded] = useState(false);
 
+  // Predefined converters
+  const [predefinedConverters, setPredefinedConverters] = useState<PredefinedConverter[]>([]);
+
   // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [source, setSource] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [converterType, setConverterType] = useState<'none' | 'predefined' | 'llm'>('none');
+  const [selectedPredefinedId, setSelectedPredefinedId] = useState<string>('');
 
   useEffect(() => {
     fetchDatasets();
+    fetchPredefinedConverters();
   }, []);
 
   async function fetchDatasets() {
@@ -40,6 +52,22 @@ export default function DatasetsPage() {
     }
   }
 
+  async function fetchPredefinedConverters() {
+    try {
+      const response = await fetch('/api/converters');
+      if (response.ok) {
+        const data = await response.json();
+        setPredefinedConverters(data);
+        // Select first predefined converter by default if available
+        if (data.length > 0) {
+          setSelectedPredefinedId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch predefined converters:', err);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -52,6 +80,10 @@ export default function DatasetsPage() {
       formData.append('source', source);
       if (file) {
         formData.append('file', file);
+      }
+      formData.append('converterType', converterType);
+      if (converterType === 'predefined' && selectedPredefinedId) {
+        formData.append('predefinedConverterId', selectedPredefinedId);
       }
 
       const response = await fetch('/api/datasets', {
@@ -175,6 +207,64 @@ export default function DatasetsPage() {
                 className="w-full px-3 py-2 border rounded-md bg-transparent"
               />
               <p className="text-xs text-neutral-500 mt-1">{t('create.fileHint')}</p>
+            </div>
+
+            {/* Converter Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                {t('create.converter')}
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="converterType"
+                    value="none"
+                    checked={converterType === 'none'}
+                    onChange={() => setConverterType('none')}
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">{t('create.converterNone')}</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="converterType"
+                    value="predefined"
+                    checked={converterType === 'predefined'}
+                    onChange={() => setConverterType('predefined')}
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">{t('create.converterPredefined')}</span>
+                </label>
+                {converterType === 'predefined' && predefinedConverters.length > 0 && (
+                  <div className="ml-6">
+                    <select
+                      value={selectedPredefinedId}
+                      onChange={(e) => setSelectedPredefinedId(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md bg-transparent text-sm"
+                    >
+                      {predefinedConverters.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} - {c.description}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="converterType"
+                    value="llm"
+                    checked={converterType === 'llm'}
+                    onChange={() => setConverterType('llm')}
+                    className="text-blue-600"
+                  />
+                  <span className="text-sm">{t('create.converterLLM')}</span>
+                </label>
+              </div>
+              <p className="text-xs text-neutral-500 mt-2">{t('create.converterHint')}</p>
             </div>
 
             {error && (

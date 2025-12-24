@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { DatasetMetadata, DatasetRegistry, DatasetWithVersions, DataVersion } from '@/types';
+import { getPredefinedConverterScript, isPredefinedConverter } from '@/converters';
 
 const DATA_STORE_DIR = 'data-store';
 
@@ -52,7 +53,11 @@ function getTimestamp(): string {
 export async function createDataset(
   name: string,
   description: string,
-  source: string
+  source: string,
+  converterOption?: {
+    type: 'none' | 'predefined' | 'llm';
+    predefinedId?: string;
+  }
 ): Promise<DatasetMetadata> {
   const id = generateId();
   const now = new Date().toISOString();
@@ -66,6 +71,16 @@ export async function createDataset(
     updated: now,
     hasConverter: false,
   };
+
+  // Set converter metadata based on option
+  if (converterOption?.type === 'predefined' && converterOption.predefinedId) {
+    metadata.hasConverter = true;
+    metadata.converterType = 'predefined';
+    metadata.predefinedConverterId = converterOption.predefinedId;
+  } else if (converterOption?.type === 'llm') {
+    metadata.converterType = 'llm';
+    // hasConverter will be set to true after LLM generates the script
+  }
 
   // Create dataset directory structure
   const datasetPath = path.join(getDataStorePath(), id);
@@ -102,7 +117,8 @@ export async function listDatasets(): Promise<DatasetWithVersions[]> {
 }
 
 /**
- * Save the converter script for a dataset
+ * Save the converter script for a dataset.
+ * If the dataset uses a predefined converter, this creates a custom override.
  */
 export async function saveConverterScript(id: string, script: string): Promise<void> {
   const registry = await getRegistry();
@@ -113,8 +129,10 @@ export async function saveConverterScript(id: string, script: string): Promise<v
   const converterPath = path.join(getDataStorePath(), id, 'converter.js');
   await fs.writeFile(converterPath, script, 'utf-8');
 
-  // Update metadata
+  // Update metadata - mark as custom converter now (overriding predefined if any)
   registry[id].metadata.hasConverter = true;
+  registry[id].metadata.converterType = 'custom';
+  // Keep predefinedConverterId so we know the original source
   registry[id].metadata.updated = new Date().toISOString();
   await saveRegistry(registry);
 
@@ -128,15 +146,38 @@ export async function saveConverterScript(id: string, script: string): Promise<v
 }
 
 /**
- * Get the converter script for a dataset
+ * Get the converter script for a dataset.
+ * Returns custom script if exists, otherwise predefined script.
  */
-export async function getConverterScript(id: string): Promise<string | null> {
+export async function getConverterScript(id: string): Promise<{ script: string | null; isPredefined: boolean }> {
+  const registry = await getRegistry();
+  const dataset = registry[id];
+
+  if (!dataset) {
+    return { script: null, isPredefined: false };
+  }
+
+  // First try to get custom converter from dataset folder
   const converterPath = path.join(getDataStorePath(), id, 'converter.js');
   try {
-    return await fs.readFile(converterPath, 'utf-8');
+    const script = await fs.readFile(converterPath, 'utf-8');
+    return { script, isPredefined: false };
   } catch {
-    return null;
+    // No custom converter, check for predefined
+    if (dataset.metadata.predefinedConverterId) {
+      const script = getPredefinedConverterScript(dataset.metadata.predefinedConverterId);
+      return { script, isPredefined: true };
+    }
+    return { script: null, isPredefined: false };
   }
+}
+
+/**
+ * Get converter script content for execution (either custom or predefined)
+ */
+export async function getConverterScriptForExecution(id: string): Promise<string | null> {
+  const { script } = await getConverterScript(id);
+  return script;
 }
 
 export async function saveRawFile(id: string, content: string, originalName?: string): Promise<DataVersion> {

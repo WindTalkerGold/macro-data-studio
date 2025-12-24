@@ -23,6 +23,11 @@
       "sourcePlaceholder": "e.g. National Bureau of Statistics",
       "file": "Initial CSV File (optional)",
       "fileHint": "Upload a CSV file to start with initial data",
+      "converter": "Data Converter",
+      "converterNone": "No converter (raw data only)",
+      "converterPredefined": "Use predefined converter",
+      "converterLLM": "Auto-generate converter with AI",
+      "converterHint": "Converters transform raw CSV data into structured JSON for visualization",
       "submit": "Create Dataset",
       "creating": "Creating..."
     },
@@ -61,6 +66,10 @@
         "save": "Save",
         "saving": "Saving...",
         "saved": "Saved!",
+        "saveAsCustom": "Save as Custom",
+        "predefined": "Predefined",
+        "predefinedHint": "This is a predefined converter. Editing and saving will create a custom version specific to this dataset.",
+        "reset": "Reset",
         "hint": "This JavaScript function converts raw CSV data to structured JSON. Edit with caution."
       },
       "preview": {

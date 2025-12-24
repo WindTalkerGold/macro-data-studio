@@ -5,8 +5,10 @@ import {
   saveRawFile,
   saveProcessedFile,
   saveConverterScript,
+  getConverterScriptForExecution,
 } from '@/lib/datasets';
 import { generateConverterScript, executeConverter, simulateApiLatency } from '@/lib/llm';
+import { getPredefinedConverterScript } from '@/converters';
 
 export async function GET() {
   try {
@@ -29,6 +31,8 @@ export async function POST(request: Request) {
     const description = formData.get('description') as string;
     const source = formData.get('source') as string;
     const file = formData.get('file') as File | null;
+    const converterType = formData.get('converterType') as string | null; // 'none' | 'predefined' | 'llm'
+    const predefinedConverterId = formData.get('predefinedConverterId') as string | null;
 
     if (!name || !description || !source) {
       return NextResponse.json(
@@ -37,8 +41,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Determine converter option
+    const converterOption = converterType ? {
+      type: converterType as 'none' | 'predefined' | 'llm',
+      predefinedId: predefinedConverterId || undefined,
+    } : undefined;
+
     // Create the dataset
-    const metadata = await createDataset(name, description, source);
+    const metadata = await createDataset(name, description, source, converterOption);
 
     // If a file was uploaded, process it
     if (file) {
@@ -47,20 +57,28 @@ export async function POST(request: Request) {
       // Save raw file
       const version = await saveRawFile(metadata.id, csvContent, file.name);
 
-      // Simulate LLM API call to generate converter script
-      await simulateApiLatency();
+      let converterScript: string | null = null;
 
-      // Generate converter script based on CSV structure
-      const converterResult = await generateConverterScript(csvContent);
+      if (converterType === 'predefined' && predefinedConverterId) {
+        // Use predefined converter - no need to save, it's already available
+        converterScript = getPredefinedConverterScript(predefinedConverterId);
+      } else if (converterType === 'llm') {
+        // Simulate LLM API call to generate converter script
+        await simulateApiLatency();
 
-      // Save the converter script
-      await saveConverterScript(metadata.id, converterResult.script);
+        // Generate converter script based on CSV structure
+        const converterResult = await generateConverterScript(csvContent);
+        converterScript = converterResult.script;
 
-      // Execute the converter to process the initial file
-      const processedData = executeConverter(converterResult.script, csvContent);
+        // Save the converter script
+        await saveConverterScript(metadata.id, converterScript);
+      }
 
-      // Save processed file
-      await saveProcessedFile(metadata.id, version.timestamp, processedData);
+      // Execute the converter to process the initial file (if we have one)
+      if (converterScript) {
+        const processedData = executeConverter(converterScript, csvContent);
+        await saveProcessedFile(metadata.id, version.timestamp, processedData);
+      }
     }
 
     return NextResponse.json({ id: metadata.id, metadata }, { status: 201 });

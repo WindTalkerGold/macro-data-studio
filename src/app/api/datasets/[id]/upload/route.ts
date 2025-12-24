@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   getDataset,
-  getConverterScript,
+  getConverterScriptForExecution,
   saveRawFile,
   saveProcessedFile,
 } from '@/lib/datasets';
@@ -23,8 +23,8 @@ export async function POST(
       );
     }
 
-    // Check if converter script exists
-    const converterScript = await getConverterScript(id);
+    // Check if converter script exists (either custom or predefined)
+    const converterScript = await getConverterScriptForExecution(id);
     if (!converterScript) {
       return NextResponse.json(
         { error: 'No converter script found for this dataset. Please upload initial data first.' },

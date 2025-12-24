@@ -23,6 +23,11 @@
       "sourcePlaceholder": "例如：国家统计局",
       "file": "初始CSV文件（可选）",
       "fileHint": "上传CSV文件以初始化数据",
+      "converter": "数据转换器",
+      "converterNone": "无转换器（仅保留原始数据）",
+      "converterPredefined": "使用预定义转换器",
+      "converterLLM": "使用AI自动生成转换器",
+      "converterHint": "转换器将原始CSV数据转换为结构化JSON以便可视化",
       "submit": "创建数据集",
       "creating": "创建中..."
     },
@@ -61,6 +66,10 @@
         "save": "保存",
         "saving": "保存中...",
         "saved": "已保存！",
+        "saveAsCustom": "保存为自定义",
+        "predefined": "预定义",
+        "predefinedHint": "这是预定义转换器。编辑并保存后将创建此数据集专用的自定义版本。",
+        "reset": "重置",
         "hint": "此JavaScript函数将原始CSV数据转换为结构化JSON。请谨慎编辑。"
       },
       "preview": {
